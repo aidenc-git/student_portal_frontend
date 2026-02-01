@@ -16,16 +16,15 @@ export default function Dashboard() {
   const [errorMsg, setErrorMsg] = useState("")
 
   const [search, setSearch] = useState("");
+  const [filteredVideos, setFilteredVideos] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
- 
-  async function loadVideos(autoSelect = false) {
+
+  async function loadVideos() {
     const token = localStorage.getItem("accessToken");
     const params = {};
 
     if (search.trim()) params.q = search.trim();
-    // Don't filter by course when searching - we want all matching videos
-    else if (selectedCourseId) params.course_id = selectedCourseId;
+    if (selectedCourseId) params.course_id = selectedCourseId;
 
     const url = search.trim()
       ? `${API_BASE}/videos/search/`
@@ -39,24 +38,10 @@ export default function Dashboard() {
     // search endpoint returns {results: []}, list endpoint returns []
     const data = Array.isArray(res.data) ? res.data : res.data.results;
     setVideos(data);
-
-    // Auto-select course and video when search returns results
-    if (autoSelect && data.length > 0) {
-      const firstVideo = data[0];
-      
-      // Auto-select the course of the first matched video
-      setSelectedCourseId(firstVideo.course_id);
-      
-      // Auto-play the first matched video
-      await handlePlay(firstVideo);
-    }
   }
 
-  // Load videos when course selection changes (but not on search)
   useEffect(() => {
-    if (!search.trim()) {
-      loadVideos(false);
-    }
+    loadVideos();
   }, [selectedCourseId]);
 
   useEffect(() => {
@@ -163,15 +148,10 @@ export default function Dashboard() {
             placeholder="Search videos (title, transcript, tags...)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                loadVideos(true);
-              }
-            }}
           />
           <button
             className="rounded-lg bg-black px-4 py-2 text-sm text-white"
-            onClick={() => loadVideos(true)}
+            onClick={loadVideos}
           >
             Search
           </button>
@@ -179,10 +159,7 @@ export default function Dashboard() {
             className="rounded-lg border px-4 py-2 text-sm"
             onClick={() => {
               setSearch("");
-              // Reset to show all videos without auto-selecting
-              if (selectedCourseId) {
-                loadVideos(false);
-              }
+              loadVideos();
             }}
           >
             Clear
@@ -226,21 +203,33 @@ export default function Dashboard() {
           </div>
 
           {loading && (
-            <p className="p-4 text-sm text-slate-500">Loading courses...</p>
+            <div className="p-4 text-sm text-slate-400">Loading…</div>
           )}
 
-          {errorMsg && (
-            <p className="p-4 text-sm text-red-400">{errorMsg}</p>
+          {!loading && errorMsg && (
+            <div className="p-4 text-sm text-red-400">{errorMsg}</div>
           )}
 
           <div className="flex-1 overflow-y-auto">
-            <ul className="p-3 space-y-2">
+            {courses.length === 0 && !loading && !errorMsg && (
+              <p className="p-4 text-sm text-slate-500">
+                No courses available yet.
+              </p>
+            )}
+
+            <ul className="p-2 space-y-2">
               {courses.map((course) => (
                 <li key={course.course_id}>
                   <button
                     onClick={() => {
-                      if (course.course_id !== selectedCourseId) {
-                        setSelectedCourseId(course.course_id)
+                      setSelectedCourseId(course.course_id)
+                      // Reset selected video for this course
+                      const vids = videos.filter(
+                        (v) => v.course_id === course.course_id
+                      )
+                      if (vids.length > 0) {
+                        setSelectedVideo(vids[0])
+                      } else {
                         setSelectedVideo(null)
                         setCurrentVideoUrl(null)
                       }
