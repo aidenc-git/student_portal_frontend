@@ -8,6 +8,8 @@ function VideoDetailPage() {
   const [playUrl, setPlayUrl] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -18,7 +20,7 @@ function VideoDetailPage() {
 
     // 1) Load video metadata
     axios
-      .get(`http://127.0.0.1:8000/api/videos/${id}/`, {
+      .get(`${API_URL}/api/videos/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setVideo(res.data))
@@ -26,7 +28,7 @@ function VideoDetailPage() {
 
     // 2) Get presigned play URL
     axios
-      .get(`http://127.0.0.1:8000/api/videos/${id}/play/`, {
+      .get(`${API_URL}/api/videos/${id}/play/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setPlayUrl(res.data.url))
