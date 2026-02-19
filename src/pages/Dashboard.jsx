@@ -121,8 +121,8 @@ export default function Dashboard() {
 
     try {
       const res = await axios.get(`${API_BASE}/api/videos/${video.video_id}/play/`, {
-        headers: { Authorization: `Bearer ${token}`,
-                   'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${token}`, 
+        'Content-Type': 'application/json' },
       })
 
       console.log("Play API response:", res.data)
@@ -131,11 +131,11 @@ export default function Dashboard() {
         setCurrentVideoUrl(res.data.url)
         setSelectedVideo(video)
       } else {
-        alert("Unable to get Video URL")
+        alert(res.data.url + "Unable to get Video URL")
       }
     } catch (err) {
       console.error("Error fetching video URL:", err)
-      alert("Unable to get Video URL")
+      alert(err + "Unable to get Video URL")
     }
   }
 
