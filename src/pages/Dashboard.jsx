@@ -33,7 +33,8 @@ export default function Dashboard() {
 
     const res = await axios.get(url, {
       params,
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json' },
     });
 
     // search endpoint returns {results: []}, list endpoint returns []
@@ -73,10 +74,12 @@ export default function Dashboard() {
         // Load courses and videos in parallel
         const [coursesRes, videosRes] = await Promise.all([
           axios.get(`${API_BASE}/api/courses/`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` ,
+            'Content-Type': 'application/json'},
           }),
           axios.get(`${API_BASE}/api/videos/`, {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` ,
+            'Content-Type': 'application/json'},
           }),
         ])
 
@@ -118,7 +121,8 @@ export default function Dashboard() {
 
     try {
       const res = await axios.get(`${API_BASE}/api/videos/${video.video_id}/play/`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`,
+                   'Content-Type': 'application/json' },
       })
 
       console.log("Play API response:", res.data)
