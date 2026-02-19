@@ -28,8 +28,8 @@ export default function Dashboard() {
     else if (selectedCourseId) params.course_id = selectedCourseId;
 
     const url = search.trim()
-      ? `${API_BASE}/videos/search/`
-      : `${API_BASE}/videos/`;
+      ? `${API_BASE}/api/videos/search/`
+      : `${API_BASE}/api/videos/`;
 
     const res = await axios.get(url, {
       params,
@@ -72,10 +72,10 @@ export default function Dashboard() {
 
         // Load courses and videos in parallel
         const [coursesRes, videosRes] = await Promise.all([
-          axios.get(`${API_BASE}/courses/`, {
+          axios.get(`${API_BASE}/api/courses/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`${API_BASE}/videos/`, {
+          axios.get(`${API_BASE}/api/videos/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ])
@@ -117,7 +117,7 @@ export default function Dashboard() {
     }
 
     try {
-      const res = await axios.get(`${API_BASE}/videos/${video.video_id}/play/`, {
+      const res = await axios.get(`${API_BASE}/api/videos/${video.video_id}/play/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
